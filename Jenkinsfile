@@ -78,22 +78,27 @@ pipeline {
         }
 
         // ----------------------------------------------------------------
-        stage('Patch pubspec.yaml') {
-        // ----------------------------------------------------------------
-            steps {
-                sh '''
-                    chmod +x scripts/patch_pubspec.sh
-                    WORKSPACE=$(pwd) scripts/patch_pubspec.sh
-                '''
-            }
-        }
-
-        // ----------------------------------------------------------------
         stage('Flutter pub get') {
         // ----------------------------------------------------------------
             steps {
-                dir('shell_app') {
-                    sh 'flutter pub get --no-example'
+                withCredentials([usernamePassword(
+                    credentialsId: 'github-credentials',
+                    usernameVariable: 'GIT_USERNAME',
+                    passwordVariable: 'GIT_PASSWORD'
+                )]) {
+                    dir('shell_app') {
+                        sh '''
+                            # Configure git credential store so Dart pub can clone
+                            # the private git: module dependencies via HTTPS.
+                            CREDS=$(mktemp)
+                            chmod 600 "$CREDS"
+                            echo "https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com" > "$CREDS"
+                            git config --global credential.helper "store --file=${CREDS}"
+                            flutter pub get --no-example
+                            git config --global --unset credential.helper || true
+                            rm -f "$CREDS"
+                        '''
+                    }
                 }
             }
         }
