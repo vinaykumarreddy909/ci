@@ -93,7 +93,7 @@ pipeline {
         // ----------------------------------------------------------------
             steps {
                 dir('shell_app') {
-                    sh 'flutter pub get --no-example'
+                    sh '/flutter/bin/flutter pub get --no-example --verbose 2>&1'
                 }
             }
         }
