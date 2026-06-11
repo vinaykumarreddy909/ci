@@ -44,7 +44,9 @@ pipeline {
                     sh '''
                         AUTH_URL=$(echo "$SHELL_APP_REPO" | sed "s|https://|https://${GIT_USERNAME}:${GIT_PASSWORD}@|")
                         if [ -d shell_app/.git ]; then
-                            git -C shell_app pull --rebase
+                            git -C shell_app reset --hard HEAD
+                            git -C shell_app clean -fd
+                            git -C shell_app pull --ff-only "$AUTH_URL" main
                         else
                             git clone --depth=1 "$AUTH_URL" shell_app
                         fi
