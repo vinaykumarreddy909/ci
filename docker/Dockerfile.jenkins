@@ -30,7 +30,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # ── Flutter SDK ────────────────────────────────────────────────────────────────
-ARG FLUTTER_VERSION=3.22.2
+ARG FLUTTER_VERSION=3.24.5
 ENV FLUTTER_HOME=/flutter
 ENV PATH="${FLUTTER_HOME}/bin:${PATH}"
 
