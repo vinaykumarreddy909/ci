@@ -119,19 +119,32 @@ pipeline {
             }
         }
 
-        // ----------------------------------------------------------------
-        stage('Build APK (release)') {
-        // ----------------------------------------------------------------
-            steps {
-                dir('shell_app') {
-                    sh '''
-                        [ -d android ] || { echo "ERROR: android/ not found. Run: flutter create --project-name shell_app --org com.example . inside shell_app and push."; exit 1; }
-                        flutter build apk --release --no-pub
-                    '''
-                }
-                archiveArtifacts artifacts: 'shell_app/build/app/outputs/flutter-apk/*.apk', fingerprint: true
-            }
-        }
+        // // ----------------------------------------------------------------
+        // stage('Build APK (release)') {
+        // // ----------------------------------------------------------------
+        //     steps {
+        //         dir('shell_app') {
+        //             sh '''
+        //                 [ -d android ] || { echo "ERROR: android/ not found. Run: flutter create --project-name shell_app --org com.example . inside shell_app and push."; exit 1; }
+
+        //                 # Android SDK cmake 3.22.1 ships only x86_64 Linux binaries.
+        //                 # On ARM64 hosts the download fails with "rosetta error".
+        //                 # Pre-seed the cmake 3.22.1 SDK path with the ARM64 system
+        //                 # cmake/ninja installed via apt so AGP skips the download.
+        //                 CMAKE_SDK_DIR="${ANDROID_HOME}/cmake/3.22.1"
+        //                 if [ ! -x "${CMAKE_SDK_DIR}/bin/cmake" ]; then
+        //                     mkdir -p "${CMAKE_SDK_DIR}/bin"
+        //                     cp "$(which cmake)"  "${CMAKE_SDK_DIR}/bin/cmake"
+        //                     cp "$(which ninja)"  "${CMAKE_SDK_DIR}/bin/ninja"
+        //                     echo "cmake $(cmake --version | head -1)" > "${CMAKE_SDK_DIR}/package.xml" || true
+        //                 fi
+
+        //                 flutter build apk --release --no-pub
+        //             '''
+        //         }
+        //         archiveArtifacts artifacts: 'shell_app/build/app/outputs/flutter-apk/*.apk', fingerprint: true
+        //     }
+        // }
 
         // ----------------------------------------------------------------
         stage('Build Web') {

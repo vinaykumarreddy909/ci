@@ -27,10 +27,13 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         curl git unzip xz-utils zip libglu1-mesa wget \
         ca-certificates gnupg python3 python3-pip \
+        cmake ninja-build \
     && rm -rf /var/lib/apt/lists/*
 
 # ── Flutter SDK ────────────────────────────────────────────────────────────────
-ARG FLUTTER_VERSION=3.24.5
+# Use the stable channel so the Flutter version matches what `flutter create`
+# produces locally. Pin via FLUTTER_VERSION ARG to allow overrides.
+ARG FLUTTER_VERSION=stable
 ENV FLUTTER_HOME=/flutter
 ENV PATH="${FLUTTER_HOME}/bin:${PATH}"
 
@@ -52,7 +55,7 @@ RUN mkdir -p ${ANDROID_HOME}/cmdline-tools \
     && mv ${ANDROID_HOME}/cmdline-tools/cmdline-tools ${ANDROID_HOME}/cmdline-tools/latest \
     && rm /tmp/cmdtools.zip \
     && yes | sdkmanager --licenses \
-    && sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+    && sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 
 # ── Fix ownership so the jenkins user can run Flutter and Android tools ────────
 RUN mkdir -p /var/jenkins_home/module_cache \
