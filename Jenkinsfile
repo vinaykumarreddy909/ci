@@ -124,7 +124,10 @@ pipeline {
         // ----------------------------------------------------------------
             steps {
                 dir('shell_app') {
-                    sh 'flutter build apk --release --no-pub'
+                    sh '''
+                        [ -d android ] || { echo "ERROR: android/ not found. Run: flutter create --project-name shell_app --org com.example . inside shell_app and push."; exit 1; }
+                        flutter build apk --release --no-pub
+                    '''
                 }
                 archiveArtifacts artifacts: 'shell_app/build/app/outputs/flutter-apk/*.apk', fingerprint: true
             }
@@ -135,7 +138,10 @@ pipeline {
         // ----------------------------------------------------------------
             steps {
                 dir('shell_app') {
-                    sh 'flutter build web --release --no-pub'
+                    sh '''
+                        [ -d web ] || { echo "ERROR: web/ not found. Run: flutter create --project-name shell_app --org com.example . inside shell_app and push."; exit 1; }
+                        flutter build web --release --no-pub
+                    '''
                 }
                 archiveArtifacts artifacts: 'shell_app/build/web/**', fingerprint: true
             }
