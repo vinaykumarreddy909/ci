@@ -6,6 +6,10 @@ FAILED=0
 
 run_tests() {
   local dir="$1"
+  if [[ ! -d "${dir}/test" ]]; then
+    echo "[test] SKIP: ${dir} (no test/ directory found)"
+    return
+  fi
   echo "------------------------------------------------------------"
   echo "[test] Testing: ${dir}"
   echo "------------------------------------------------------------"
