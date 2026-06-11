@@ -25,22 +25,3 @@ credentials:
               username: "${GITHUB_USERNAME}"
               password: "${GITHUB_TOKEN}"
 
-jobs:
-  - script: |
-      pipelineJob('flutter-mfe') {
-        definition {
-          cpsScmFlowDefinition {
-            scm {
-              git {
-                remote {
-                  url('https://github.com/vinaykumarreddy909/ci.git')
-                  credentials('github-credentials')
-                }
-                branch('*/main')
-              }
-            }
-            scriptPath('Jenkinsfile')
-            lightweight(false)
-          }
-        }
-      }
