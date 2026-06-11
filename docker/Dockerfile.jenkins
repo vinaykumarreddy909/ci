@@ -56,7 +56,9 @@ RUN mkdir -p ${ANDROID_HOME}/cmdline-tools \
 
 # ── Fix ownership so the jenkins user can run Flutter and Android tools ────────
 RUN mkdir -p /var/jenkins_home/module_cache \
+    && mkdir -p /var/jenkins_home/.pub-cache \
     && chown -R jenkins:jenkins /var/jenkins_home/module_cache \
+    && chown -R jenkins:jenkins /var/jenkins_home/.pub-cache \
     && chown -R jenkins:jenkins ${FLUTTER_HOME} \
     && chown -R jenkins:jenkins ${ANDROID_HOME} \
     && git config --global --add safe.directory ${FLUTTER_HOME}
