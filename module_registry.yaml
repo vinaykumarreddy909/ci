@@ -1,0 +1,21 @@
+modules:
+  common_module:
+    git_url: "https://github.com/vinaykumarreddy909/common_module.git"
+    ref: "main"
+    version: "1.0.0"
+  auth_module:
+    git_url: "https://github.com/vinaykumarreddy909/auth_module.git"
+    ref: "main"
+    version: "1.0.0"
+  home_module:
+    git_url: "https://github.com/vinaykumarreddy909/home_module.git"
+    ref: "main"
+    version: "1.0.0"
+  profile_module:
+    git_url: "https://github.com/vinaykumarreddy909/profile_module.git"
+    ref: "main"
+    version: "1.0.0"
+
+cache:
+  directory: "/var/jenkins_home/module_cache"
+  always_check_remote: true

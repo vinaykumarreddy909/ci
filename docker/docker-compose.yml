@@ -1,0 +1,70 @@
+# docker-compose.yml — Jenkins CI infrastructure for Flutter MFE
+# Run from this directory: docker compose up -d jenkins web-serve
+#
+# Volumes:
+#   jenkins_home        — Persists Jenkins config, jobs, credentials.
+#   flutter_module_cache — Cached module clones shared across builds.
+#   flutter_pub_cache   — Dart pub cache, speeds up flutter pub get.
+#   flutter_web_build   — Web build output served by nginx on port 8090.
+
+services:
+  # ── Jenkins ──────────────────────────────────────────────────────────────────
+  jenkins:
+    build:
+      context: .
+      dockerfile: Dockerfile.jenkins
+    image: flutter-jenkins:latest
+    container_name: flutter_jenkins
+    restart: unless-stopped
+    ports:
+      - "8080:8080"    # Web UI
+      - "50000:50000"  # Agent JNLP
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - flutter_module_cache:/var/jenkins_home/module_cache
+      - flutter_pub_cache:/root/.pub-cache
+      - /var/run/docker.sock:/var/run/docker.sock
+      # CasC config — auto-creates credentials on boot
+      - ./jenkins_casc:/var/jenkins_home/casc_configs:ro
+      # Full project root mounted so Jenkins can read Jenkinsfile + shell_app
+      - /Users/vinaychaitu/Desktop/mfes/flutter_mfe_git_cached:/local_repo:ro
+      # Web build output shared with nginx
+      - flutter_web_build:/var/web_serve
+    env_file:
+      - ../.env
+    environment:
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+      - CASC_JENKINS_CONFIG=/var/jenkins_home/casc_configs
+      - MODULE_CACHE_DIR=/var/jenkins_home/module_cache
+      - GITHUB_USERNAME=${GITHUB_USERNAME}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/login"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # ── Web preview — serves the Flutter web build on port 8090 ──────────────────
+  web-serve:
+    image: nginx:alpine
+    container_name: flutter_web_serve
+    restart: unless-stopped
+    ports:
+      - "8090:80"
+    volumes:
+      - flutter_web_build:/usr/share/nginx/html:ro
+
+volumes:
+  jenkins_home:
+    driver: local
+  flutter_module_cache:
+    driver: local
+  flutter_pub_cache:
+    driver: local
+  flutter_web_build:
+    driver: local
+
+networks:
+  default:
+    name: flutter_mfe_network

@@ -1,0 +1,27 @@
+# Jenkins Configuration as Code
+# Auto-creates the Flutter MFE pipeline job on first boot.
+# Mount this file at: /var/jenkins_home/casc_configs/jenkins.yaml
+jenkins:
+  systemMessage: "Flutter Micro-Module CI — auto-configured"
+  numExecutors: 2
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "admin"
+          password: "admin"   # Change this in production!
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - usernamePassword:
+              scope: GLOBAL
+              id: "github-credentials"
+              description: "GitHub username + token for fetching Flutter modules"
+              username: "${GITHUB_USERNAME}"
+              password: "${GITHUB_TOKEN}"
+
