@@ -22,7 +22,7 @@ services:
     volumes:
       - jenkins_home:/var/jenkins_home
       - flutter_module_cache:/var/jenkins_home/module_cache
-      - flutter_pub_cache:/root/.pub-cache
+      - flutter_pub_cache:/var/jenkins_home/.pub-cache
       - /var/run/docker.sock:/var/run/docker.sock
       # CasC config — auto-creates credentials on boot
       - ./jenkins_casc:/var/jenkins_home/casc_configs:ro

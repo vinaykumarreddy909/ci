@@ -12,7 +12,7 @@ pipeline {
 
     environment {
         MODULE_CACHE_DIR = '/var/jenkins_home/module_cache'
-        PUB_CACHE         = '/root/.pub-cache'
+        PUB_CACHE         = '/var/jenkins_home/.pub-cache'
         FLUTTER_ROOT      = '/flutter'
         PATH              = "${env.FLUTTER_ROOT}/bin:${env.PATH}"
         SHELL_APP_REPO    = 'https://github.com/vinaykumarreddy909/shell_app.git'
