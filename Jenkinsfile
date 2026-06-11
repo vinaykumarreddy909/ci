@@ -1,12 +1,11 @@
 // Jenkinsfile — Flutter Micro-Module CI/CD pipeline
+// Repo: https://github.com/vinaykumarreddy909/ci.git
+//
 // Cache strategy:
 //   • resolve_modules.sh  checks each module's remote Git hash against the
 //     cached hash stored in MODULE_CACHE_DIR/<module>/.resolved_hash
 //   • Only modules whose hash changed (or that are missing) are re-cloned.
 //   • patch_pubspec.sh rewrites path: dependencies to point at the cache.
-//
-// CI_DIR: set to 'ci' when this Jenkinsfile lives inside a subdirectory of the
-// main project. Set to '' (empty) when this repo is used as a standalone CI repo.
 
 pipeline {
     agent any
@@ -16,7 +15,7 @@ pipeline {
         PUB_CACHE         = '/root/.pub-cache'
         FLUTTER_ROOT      = '/flutter'
         PATH              = "${env.FLUTTER_ROOT}/bin:${env.PATH}"
-        CI_DIR            = 'ci'
+        SHELL_APP_REPO    = 'https://github.com/vinaykumarreddy909/shell_app.git'
     }
 
     options {
@@ -27,7 +26,7 @@ pipeline {
 
     stages {
         // ----------------------------------------------------------------
-        stage('Checkout') {
+        stage('Checkout CI Config') {
         // ----------------------------------------------------------------
             steps {
                 checkout scm
@@ -35,21 +34,39 @@ pipeline {
         }
 
         // ----------------------------------------------------------------
+        stage('Checkout Shell App') {
+        // ----------------------------------------------------------------
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'github-credentials',
+                    usernameVariable: 'GIT_USERNAME',
+                    passwordVariable: 'GIT_PASSWORD'
+                )]) {
+                    sh '''
+                        AUTH_URL=$(echo "$SHELL_APP_REPO" | sed "s|https://|https://${GIT_USERNAME}:${GIT_PASSWORD}@|")
+                        if [ -d shell_app/.git ]; then
+                            git -C shell_app pull --rebase
+                        else
+                            git clone --depth=1 "$AUTH_URL" shell_app
+                        fi
+                    '''
+                }
+            }
+        }
+
+        // ----------------------------------------------------------------
         stage('Resolve & Cache Modules') {
         // ----------------------------------------------------------------
             steps {
-                script {
-                    withCredentials([usernamePassword(
-                        credentialsId: 'github-credentials',
-                        usernameVariable: 'GIT_USERNAME',
-                        passwordVariable: 'GIT_PASSWORD'
-                    )]) {
-                        sh '''
-                            chmod +x ${CI_DIR}/scripts/resolve_modules.sh
-                            MODULE_REGISTRY="${WORKSPACE}/${CI_DIR}/module_registry.yaml" \
-                                ${CI_DIR}/scripts/resolve_modules.sh
-                        '''
-                    }
+                withCredentials([usernamePassword(
+                    credentialsId: 'github-credentials',
+                    usernameVariable: 'GIT_USERNAME',
+                    passwordVariable: 'GIT_PASSWORD'
+                )]) {
+                    sh '''
+                        chmod +x scripts/resolve_modules.sh
+                        scripts/resolve_modules.sh
+                    '''
                 }
             }
             post {
@@ -64,8 +81,8 @@ pipeline {
         // ----------------------------------------------------------------
             steps {
                 sh '''
-                    chmod +x ${CI_DIR}/scripts/patch_pubspec.sh
-                    WORKSPACE=$(pwd) ${CI_DIR}/scripts/patch_pubspec.sh
+                    chmod +x scripts/patch_pubspec.sh
+                    WORKSPACE=$(pwd) scripts/patch_pubspec.sh
                 '''
             }
         }
@@ -95,8 +112,8 @@ pipeline {
         // ----------------------------------------------------------------
             steps {
                 sh '''
-                    chmod +x ${CI_DIR}/scripts/run_tests.sh
-                    WORKSPACE=$(pwd) ${CI_DIR}/scripts/run_tests.sh
+                    chmod +x scripts/run_tests.sh
+                    WORKSPACE=$(pwd) scripts/run_tests.sh
                 '''
             }
             post {

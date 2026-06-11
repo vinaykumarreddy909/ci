@@ -24,10 +24,8 @@ services:
       - flutter_module_cache:/var/jenkins_home/module_cache
       - flutter_pub_cache:/root/.pub-cache
       - /var/run/docker.sock:/var/run/docker.sock
-      # CasC config — auto-creates credentials on boot
+      # CasC config — auto-creates credentials and pipeline job on boot
       - ./jenkins_casc:/var/jenkins_home/casc_configs:ro
-      # Full project root mounted so Jenkins can read Jenkinsfile + shell_app
-      - /Users/vinaychaitu/Desktop/mfes/flutter_mfe_git_cached:/local_repo:ro
       # Web build output shared with nginx
       - flutter_web_build:/var/web_serve
     env_file:
