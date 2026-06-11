@@ -165,6 +165,7 @@ pipeline {
         // ----------------------------------------------------------------
             steps {
                 sh '''
+                    rm -rf /var/web_serve/*
                     cp -r shell_app/build/web/. /var/web_serve/
                 '''
                 echo 'Web app deployed — open http://localhost:8090 to view it.'
